@@ -1,0 +1,16 @@
+# Ambiente virtual
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Ambiente e credenciais
+.env
+
+# Logs
+*.log
+
+# Configurações pessoais do VS Code
+.vscode/

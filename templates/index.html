@@ -1,0 +1,2793 @@
+<!doctype html>
+
+<html lang="pt-BR">
+
+<head>
+
+    <meta charset="utf-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>SAMU | Central de Ocorrências</title>
+
+    <!-- Chart.js -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- =====================================================
+         MENU LATERAL
+         ===================================================== -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="brand-mark">
+                ✚
+            </div>
+
+            <div>
+
+                <strong>SAMU</strong>
+
+                <span>Central de Ocorrências</span>
+
+            </div>
+
+        </div>
+
+        <div class="menu-title">
+            MENU PRINCIPAL
+        </div>
+
+        <nav>
+
+            <button
+                class="nav-btn active"
+                onclick="show('dash', this)">
+
+                <span>▦</span>
+
+                Dashboard
+
+            </button>
+
+            <button
+                class="nav-btn"
+                onclick="show('search', this)">
+
+                <span>⌕</span>
+
+                Consultar ocorrências
+
+            </button>
+
+            <button
+                class="nav-btn"
+                onclick="show('create', this)">
+
+                <span>＋</span>
+
+                Nova ocorrência
+
+            </button>
+
+        </nav>
+
+        <div class="sidebar-footer">
+
+            <div class="status-dot"></div>
+
+            <div>
+
+                <b>Sistema online</b>
+
+                <small>Elasticsearch conectado</small>
+
+            </div>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- =====================================================
+         CONTEÚDO PRINCIPAL
+         ===================================================== -->
+
+    <main class="main">
+
+        <!-- TOPO -->
+
+        <header class="topbar">
+
+            <div class="mobile-title">
+
+                <div class="brand-mark small">
+                    ✚
+                </div>
+
+                <b>SAMU</b>
+
+            </div>
+
+            <div class="breadcrumb">
+
+                Central /
+
+                <strong id="page-title">
+                    Dashboard
+                </strong>
+
+            </div>
+
+            <div class="top-actions">
+
+                <span class="live">
+
+                    <i></i>
+
+                    Operação ativa
+
+                </span>
+
+                <button
+                    class="icon-btn"
+                    title="Atualizar"
+                    onclick="load()">
+
+                    ↻
+
+                </button>
+
+                <div class="avatar">
+                    S
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =====================================================
+             DASHBOARD
+             ===================================================== -->
+
+        <section id="dash" class="page-section">
+
+            <div class="hero">
+
+                <div>
+
+                    <span class="eyebrow">
+                        MONITORAMENTO OPERACIONAL
+                    </span>
+
+                    <h1>
+                        Dashboard de ocorrências
+                    </h1>
+
+                    <p>
+                        Acompanhe os principais indicadores registrados pelo SAMU.
+                    </p>
+
+                </div>
+
+                <button
+                    class="primary"
+                    onclick="load()">
+
+                    ↻ Atualizar dados
+
+                </button>
+
+            </div>
+
+
+
+            <!-- CARDS -->
+
+            <div class="cards">
+
+                <div class="kpi">
+
+                    <div class="kpi-icon red">
+                        ▥
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Total de ocorrências
+                        </span>
+
+                        <strong id="total">
+                            —
+                        </strong>
+
+                        <small>
+                            Registros disponíveis
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="kpi">
+
+                    <div class="kpi-icon blue">
+                        ⌖
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Municípios atendidos
+                        </span>
+
+                        <strong id="mun">
+                            —
+                        </strong>
+
+                        <small>
+                            Municípios distintos
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="kpi">
+
+                    <div class="kpi-icon teal">
+                        ◷
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Idade média
+                        </span>
+
+                        <strong id="avg">
+                            —
+                        </strong>
+
+                        <small>
+                            Entre os registros
+                        </small>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="kpi">
+
+                    <div class="kpi-icon orange">
+                        ★
+                    </div>
+
+                    <div>
+
+                        <span>
+                            Tipo mais frequente
+                        </span>
+
+                        <strong id="top">
+                            —
+                        </strong>
+
+                        <small>
+                            Maior volume registrado
+                        </small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- INDICADORES -->
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>
+                        Indicadores operacionais
+                    </h2>
+
+                    <p>
+                        Distribuição das ocorrências no período selecionado.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="grid">
+
+                <!-- TIPO -->
+
+                <article class="panel large">
+
+                    <div class="panel-head">
+
+                        <div>
+
+                            <h3>
+                                Ocorrências por tipo
+                            </h3>
+
+                            <span>
+                                Distribuição por classificação
+                            </span>
+
+                        </div>
+
+                        <span class="panel-badge">
+                            TIPO
+                        </span>
+
+                    </div>
+
+                    <div class="chart-wrap">
+
+                        <canvas id="chartTipo"></canvas>
+
+                    </div>
+
+                </article>
+
+
+
+                <!-- SEXO -->
+
+                <article class="panel">
+
+                    <div class="panel-head">
+
+                        <div>
+
+                            <h3>
+                                Ocorrências por sexo
+                            </h3>
+
+                            <span>
+                                Perfil dos atendimentos
+                            </span>
+
+                        </div>
+
+                        <span class="panel-badge">
+                            PERFIL
+                        </span>
+
+                    </div>
+
+                    <div class="chart-wrap doughnut-wrap">
+
+                        <canvas id="chartSexo"></canvas>
+
+                    </div>
+
+                </article>
+
+
+
+                <!-- MUNICÍPIO -->
+
+                <article class="panel">
+
+                    <div class="panel-head">
+
+                        <div>
+
+                            <h3>
+                                Ocorrências por município
+                            </h3>
+
+                            <span>
+                                Top 10 municípios
+                            </span>
+
+                        </div>
+
+                        <span class="panel-badge">
+                            LOCAL
+                        </span>
+
+                    </div>
+
+                    <div class="chart-wrap">
+
+                        <canvas id="chartMunicipio"></canvas>
+
+                    </div>
+
+                </article>
+
+
+
+                <!-- IDADE -->
+
+                <article class="panel">
+
+                    <div class="panel-head">
+
+                        <div>
+
+                            <h3>
+                                Faixa etária
+                            </h3>
+
+                            <span>
+                                Distribuição por idade
+                            </span>
+
+                        </div>
+
+                        <span class="panel-badge">
+                            IDADE
+                        </span>
+
+                    </div>
+
+                    <div class="chart-wrap">
+
+                        <canvas id="chartIdade"></canvas>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             CONSULTAR OCORRÊNCIAS
+             ===================================================== -->
+
+        <section id="search" class="page-section hidden">
+
+            <div class="hero compact">
+
+                <div>
+
+                    <span class="eyebrow">
+                        CONSULTA
+                    </span>
+
+                    <h1>
+                        Consultar ocorrências
+                    </h1>
+
+                    <p>
+                        Use os filtros para localizar registros específicos.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <article class="panel form-panel">
+
+                <div class="panel-head">
+
+                    <div>
+
+                        <h3>
+                            Filtros de pesquisa
+                        </h3>
+
+                        <span>
+                            Preencha apenas os campos necessários.
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="form">
+
+                    <label>
+
+                        Município
+
+                        <input
+                            id="fm"
+                            type="text"
+                            placeholder="Ex.: RECIFE">
+
+                    </label>
+
+
+
+                    <label>
+
+                        Tipo
+
+                        <input
+                            id="ft"
+                            type="text"
+                            placeholder="Ex.: TRAUMA">
+
+                    </label>
+
+
+
+                    <label>
+
+                        Sexo
+
+                        <select id="fs">
+
+                            <option value="">
+                                Todos
+                            </option>
+
+                            <option value="MASCULINO">
+                                MASCULINO
+                            </option>
+
+                            <option value="FEMININO">
+                                FEMININO
+                            </option>
+
+                        </select>
+
+                    </label>
+
+
+
+                    <label>
+
+                        Idade mínima
+
+                        <input
+                            id="fmin"
+                            type="number"
+                            min="0"
+                            placeholder="Ex.: 18">
+
+                    </label>
+
+
+
+                    <label>
+
+                        Idade máxima
+
+                        <input
+                            id="fmax"
+                            type="number"
+                            min="0"
+                            placeholder="Ex.: 60">
+
+                    </label>
+
+
+
+                    <label>
+
+                        Data inicial
+
+                        <input
+                            id="fd1"
+                            type="date">
+
+                    </label>
+
+
+
+                    <label>
+
+                        Data final
+
+                        <input
+                            id="fd2"
+                            type="date">
+
+                    </label>
+
+                </div>
+
+
+
+                <div class="form-actions">
+
+                    <button
+                        class="secondary"
+                        onclick="clearSearch()">
+
+                        Limpar
+
+                    </button>
+
+                    <button
+                        class="primary"
+                        onclick="search()">
+
+                        ⌕ Pesquisar ocorrências
+
+                    </button>
+
+                </div>
+
+            </article>
+
+
+
+            <!-- RESULTADOS -->
+
+            <article class="panel results-panel">
+
+                <div class="panel-head">
+
+                    <div>
+
+                        <h3>
+                            Resultados
+                        </h3>
+
+                        <span id="result-caption">
+                            Faça uma pesquisa para visualizar os registros.
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+
+                <div
+                    id="results"
+                    class="results-empty">
+
+                    Nenhuma consulta realizada.
+
+                </div>
+
+            </article>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             CADASTRAR / EDITAR
+             ===================================================== -->
+
+        <section id="create" class="page-section hidden">
+
+            <div class="hero compact">
+
+                <div>
+
+                    <span class="eyebrow" id="form-eyebrow">
+                        REGISTRO
+                    </span>
+
+                    <h1 id="form-title">
+                        Nova ocorrência
+                    </h1>
+
+                    <p id="form-description">
+                        Cadastre uma nova ocorrência na base do SAMU.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <article class="panel form-panel">
+
+                <div class="panel-head">
+
+                    <div>
+
+                        <h3 id="form-panel-title">
+                            Dados da ocorrência
+                        </h3>
+
+                        <span>
+                            Informe os dados do atendimento.
+                        </span>
+
+                    </div>
+
+                    <span class="required-note">
+                        * Campos obrigatórios
+                    </span>
+
+                </div>
+
+
+
+                <div class="form">
+
+                    <!-- DATA -->
+
+                    <label>
+
+                        Data
+
+                        <input
+                            id="data"
+                            type="date">
+
+                    </label>
+
+
+
+                    <!-- HORA -->
+
+                    <label>
+
+                        Hora
+
+                        <input
+                            id="hora_minuto"
+                            type="time">
+
+                    </label>
+
+
+
+                    <!-- MUNICÍPIO -->
+
+                    <label>
+
+                        Município
+
+                        <input
+                            id="municipio"
+                            type="text"
+                            placeholder="Ex.: RECIFE">
+
+                    </label>
+
+
+
+                    <!-- BAIRRO -->
+
+                    <label>
+
+                        Bairro
+
+                        <input
+                            id="bairro"
+                            type="text"
+                            placeholder="Ex.: TORRE">
+
+                    </label>
+
+
+
+                    <!-- ENDEREÇO -->
+
+                    <label class="wide">
+
+                        Endereço
+
+                        <input
+                            id="endereco"
+                            type="text"
+                            placeholder="Rua, número ou referência">
+
+                    </label>
+
+
+
+                    <!-- ORIGEM -->
+
+                    <label>
+
+                        Origem do chamado
+
+                        <input
+                            id="origem_chamado"
+                            type="text"
+                            placeholder="Ex.: RESIDENCIAL">
+
+                    </label>
+
+
+
+                    <!-- TIPO -->
+
+                    <label>
+
+                        Tipo
+
+                        <input
+                            id="tipo"
+                            type="text"
+                            placeholder="Ex.: TRAUMA">
+
+                    </label>
+
+
+
+                    <!-- SUBTIPO -->
+
+                    <label>
+
+                        Subtipo
+
+                        <input
+                            id="subtipo"
+                            type="text"
+                            placeholder="Ex.: QUEDA">
+
+                    </label>
+
+
+
+                    <!-- SEXO -->
+
+                    <label>
+
+                        Sexo
+
+                        <select id="sexo">
+
+                            <option value="">
+                                Selecione
+                            </option>
+
+                            <option value="MASCULINO">
+                                MASCULINO
+                            </option>
+
+                            <option value="FEMININO">
+                                FEMININO
+                            </option>
+
+                        </select>
+
+                    </label>
+
+
+
+                    <!-- IDADE -->
+
+                    <label>
+
+                        Idade
+
+                        <input
+                            id="idade"
+                            type="number"
+                            min="0"
+                            placeholder="Ex.: 45">
+
+                    </label>
+
+                </div>
+
+
+
+                <div class="form-actions">
+
+                    <button
+                        id="btn-cadastrar"
+                        class="primary"
+                        onclick="create()">
+
+                        ＋ Cadastrar ocorrência
+
+                    </button>
+
+
+
+                    <button
+                        id="btn-cancelar-edicao"
+                        class="secondary"
+                        onclick="cancelEdit()"
+                        style="display:none;">
+
+                        Cancelar edição
+
+                    </button>
+
+                </div>
+
+
+
+                <div id="msg"></div>
+
+            </article>
+
+        </section>
+
+
+
+        <!-- =====================================================
+             RODAPÉ
+             ===================================================== -->
+
+        <footer>
+
+            © 2026 SAMU • Sistema de Monitoramento de Ocorrências
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+
+<!-- ==========================================================
+     JAVASCRIPT
+     ========================================================== -->
+
+<script>
+
+let charts = {};
+
+let editingId = null;
+
+let registrosPesquisa = [];
+
+
+/* ==========================================================
+   FUNÇÃO PARA PEGAR ELEMENTOS
+   ========================================================== */
+
+function $(id) {
+
+    return document.getElementById(id);
+
+}
+
+
+
+/* ==========================================================
+   TROCAR DE TELA
+   ========================================================== */
+
+function show(id, btn) {
+
+    const sections = [
+        "dash",
+        "search",
+        "create"
+    ];
+
+
+
+    sections.forEach(section => {
+
+        const elemento = $(section);
+
+        if (elemento) {
+
+            elemento.classList.toggle(
+                "hidden",
+                section !== id
+            );
+
+        }
+
+    });
+
+
+
+    document
+        .querySelectorAll(".nav-btn")
+        .forEach(button => {
+
+            button.classList.remove("active");
+
+        });
+
+
+
+    if (btn) {
+
+        btn.classList.add("active");
+
+    }
+
+
+
+    const names = {
+
+        dash: "Dashboard",
+
+        search: "Consultar ocorrências",
+
+        create: editingId
+            ? "Editar ocorrência"
+            : "Nova ocorrência"
+
+    };
+
+
+
+    $("page-title").textContent = names[id];
+
+
+
+    window.scrollTo({
+
+        top: 0,
+
+        behavior: "smooth"
+
+    });
+
+}
+
+
+
+/* ==========================================================
+   API
+   ========================================================== */
+
+async function api(url, options = {}) {
+
+    const response = await fetch(
+        url,
+        options
+    );
+
+
+
+    let data;
+
+    try {
+
+        data = await response.json();
+
+    } catch {
+
+        data = {};
+
+    }
+
+
+
+    if (!response.ok) {
+
+        throw new Error(
+
+            data.erro ||
+            "Erro HTTP " + response.status
+
+        );
+
+    }
+
+
+
+    return data;
+
+}
+
+
+
+/* ==========================================================
+   CONTAGEM
+   ========================================================== */
+
+function count(array, key, limit = Infinity) {
+
+    const result = {};
+
+
+
+    array.forEach(item => {
+
+        const value =
+            item[key] ||
+            "Não informado";
+
+
+
+        result[value] =
+            (result[value] || 0) + 1;
+
+    });
+
+
+
+    return Object.fromEntries(
+
+        Object.entries(result)
+
+            .sort(
+
+                (a, b) =>
+                    b[1] - a[1]
+
+            )
+
+            .slice(0, limit)
+
+    );
+
+}
+
+
+
+/* ==========================================================
+   CONFIGURAÇÃO DOS GRÁFICOS
+   ========================================================== */
+
+const baseOptions = {
+
+    responsive: true,
+
+    maintainAspectRatio: false,
+
+    plugins: {
+
+        legend: {
+
+            display: false
+
+        },
+
+        tooltip: {
+
+            backgroundColor: "#14233b",
+
+            padding: 10,
+
+            cornerRadius: 8
+
+        }
+
+    },
+
+    scales: {
+
+        x: {
+
+            grid: {
+
+                display: false
+
+            },
+
+            ticks: {
+
+                color: "#68758a",
+
+                font: {
+
+                    size: 11
+
+                }
+
+            }
+
+        },
+
+        y: {
+
+            beginAtZero: true,
+
+            grid: {
+
+                color: "#edf1f5"
+
+            },
+
+            ticks: {
+
+                color: "#68758a"
+
+            }
+
+        }
+
+    }
+
+};
+
+
+
+/* ==========================================================
+   CRIAR GRÁFICO
+   ========================================================== */
+
+function chart(id, data, type = "bar") {
+
+    const canvas = $(id);
+
+
+
+    if (!canvas) {
+
+        console.warn(
+            "Canvas não encontrado:",
+            id
+        );
+
+        return;
+
+    }
+
+
+
+    if (charts[id]) {
+
+        charts[id].destroy();
+
+    }
+
+
+
+    const labels =
+        Object.keys(data);
+
+
+
+    const values =
+        Object.values(data);
+
+
+
+    let options =
+        JSON.parse(
+            JSON.stringify(baseOptions)
+        );
+
+
+
+    if (type === "doughnut") {
+
+        options.cutout = "64%";
+
+
+
+        options.plugins.legend = {
+
+            position: "bottom",
+
+            labels: {
+
+                usePointStyle: true,
+
+                padding: 18,
+
+                color: "#435067"
+
+            }
+
+        };
+
+
+
+        options.scales = {};
+
+    }
+
+
+
+    charts[id] = new Chart(
+
+        canvas,
+
+        {
+
+            type:
+                type === "pie"
+                    ? "doughnut"
+                    : type,
+
+
+
+            data: {
+
+                labels: labels,
+
+
+
+                datasets: [
+
+                    {
+
+                        label: "Quantidade",
+
+                        data: values,
+
+                        borderWidth:
+                            type === "doughnut"
+                                ? 2
+                                : 0,
+
+                        borderRadius:
+                            type === "doughnut"
+                                ? 0
+                                : 6,
+
+                        backgroundColor:
+                            type === "doughnut"
+                                ? [
+
+                                    "#ef476f",
+
+                                    "#2f80ed",
+
+                                    "#16b8a6",
+
+                                    "#f6a800",
+
+                                    "#7c6cf2"
+
+                                ]
+                                : undefined,
+
+                        hoverOffset:
+                            type === "doughnut"
+                                ? 5
+                                : 0
+
+                    }
+
+                ]
+
+            },
+
+
+
+            options: options
+
+        }
+
+    );
+
+}
+
+
+
+/* ==========================================================
+   CARREGAR DASHBOARD
+   ========================================================== */
+
+async function load() {
+
+    try {
+
+        $("total").textContent = "…";
+
+
+
+        const data =
+            await api("/ocorrencias");
+
+
+
+        const registros =
+            data.registros || [];
+
+
+
+        /* TOTAL */
+
+        $("total").textContent =
+
+            Number(
+
+                data.total_encontrado ??
+                registros.length
+
+            ).toLocaleString("pt-BR");
+
+
+
+        /* MUNICÍPIOS */
+
+        const municipios =
+
+            registros
+
+                .map(item => item.municipio)
+
+                .filter(Boolean);
+
+
+
+        $("mun").textContent =
+
+            new Set(municipios)
+
+                .size
+
+                .toLocaleString("pt-BR");
+
+
+
+        /* IDADE */
+
+        const ages =
+
+            registros
+
+                .map(item =>
+                    Number(item.idade)
+                )
+
+                .filter(Number.isFinite);
+
+
+
+        $("avg").textContent =
+
+            ages.length
+
+                ? (
+
+                    ages.reduce(
+
+                        (total, idade) =>
+                            total + idade,
+
+                        0
+
+                    ) / ages.length
+
+                ).toFixed(1)
+
+                : "—";
+
+
+
+        /* TIPO */
+
+        const tipos =
+            count(
+                registros,
+                "tipo"
+            );
+
+
+
+        $("top").textContent =
+
+            Object.keys(tipos)[0] ||
+
+            "—";
+
+
+
+        /* GRÁFICOS */
+
+        chart(
+            "chartTipo",
+            tipos
+        );
+
+
+
+        chart(
+            "chartSexo",
+            count(
+                registros,
+                "sexo"
+            ),
+            "pie"
+        );
+
+
+
+        chart(
+            "chartMunicipio",
+            count(
+                registros,
+                "municipio",
+                10
+            )
+        );
+
+
+
+        /* FAIXA ETÁRIA */
+
+        const faixas = {
+
+            "0–9": 0,
+
+            "10–19": 0,
+
+            "20–29": 0,
+
+            "30–39": 0,
+
+            "40–49": 0,
+
+            "50–59": 0,
+
+            "60–69": 0,
+
+            "70–79": 0,
+
+            "80+": 0
+
+        };
+
+
+
+        ages.forEach(idade => {
+
+            let faixa;
+
+
+
+            if (idade >= 80) {
+
+                faixa = "80+";
+
+            } else {
+
+                const inicio =
+
+                    Math.floor(
+                        idade / 10
+                    ) * 10;
+
+
+
+                faixa =
+
+                    inicio +
+
+                    "–" +
+
+                    (inicio + 9);
+
+            }
+
+
+
+            if (faixa in faixas) {
+
+                faixas[faixa]++;
+
+            }
+
+        });
+
+
+
+        chart(
+            "chartIdade",
+            faixas
+        );
+
+
+
+    } catch (error) {
+
+        console.error(
+            "Erro ao carregar:",
+            error
+        );
+
+
+
+        $("total").textContent =
+            "—";
+
+
+
+        alert(
+
+            "Não foi possível carregar os dados. " +
+
+            "Verifique se a API Flask está rodando."
+
+        );
+
+    }
+
+}
+
+
+
+/* ==========================================================
+   PESQUISAR OCORRÊNCIAS
+   ========================================================== */
+
+async function search() {
+
+    const params =
+        new URLSearchParams();
+
+
+
+    const filtros = {
+
+        municipio: "fm",
+
+        tipo: "ft",
+
+        sexo: "fs",
+
+        idade_min: "fmin",
+
+        idade_max: "fmax",
+
+        data_inicial: "fd1",
+
+        data_final: "fd2"
+
+    };
+
+
+
+    Object.entries(filtros)
+
+        .forEach(([key, id]) => {
+
+            const elemento = $(id);
+
+            if (!elemento) return;
+
+
+
+            const value =
+                elemento.value;
+
+
+
+            if (value) {
+
+                params.set(
+                    key,
+                    value
+                );
+
+            }
+
+        });
+
+
+
+    $("results").innerHTML =
+
+        '<div class="loading">' +
+
+        'Consultando registros…' +
+
+        '</div>';
+
+
+
+    try {
+
+        const data =
+
+            await api(
+
+                "/ocorrencias?" +
+                params.toString()
+
+            );
+
+
+
+        const items =
+            data.registros || [];
+
+
+
+        /* Guardar resultados para edição */
+
+        registrosPesquisa = items;
+
+
+
+        $("result-caption")
+
+            .textContent =
+
+            (
+
+                data.total_encontrado ??
+                items.length
+
+            ).toLocaleString("pt-BR") +
+
+            " ocorrência(s) encontrada(s)";
+
+
+
+        if (!items.length) {
+
+            $("results").innerHTML =
+
+                '<div class="results-empty">' +
+
+                'Nenhuma ocorrência encontrada com esses filtros.' +
+
+                '</div>';
+
+            return;
+
+        }
+
+
+
+        $("results").innerHTML =
+
+            '<div class="result-list">' +
+
+
+
+            items.map(item => `
+
+                <div class="result">
+
+                    <div class="result-main">
+
+                        <span class="type-pill">
+
+                            ${esc(
+
+                                item.tipo ||
+
+                                "Não informado"
+
+                            )}
+
+                        </span>
+
+
+
+                        <strong>
+
+                            ${esc(
+
+                                item.municipio ||
+
+                                "Não informado"
+
+                            )}
+
+                        </strong>
+
+
+
+                        <span>
+
+                            ${esc(
+
+                                item.bairro ||
+
+                                "—"
+
+                            )}
+
+                        </span>
+
+                    </div>
+
+
+
+                    <div class="result-meta">
+
+                        <!-- DATA -->
+
+                        <span>
+
+                            📅
+
+                            ${esc(
+
+                                formatDateForInput(
+
+                                    item.data
+
+                                ) ||
+
+                                "—"
+
+                            )}
+
+                        </span>
+
+
+
+                        <!-- HORÁRIO -->
+
+                        <span>
+
+                            🕐
+
+                            ${esc(
+
+                                item.hora_minuto ||
+
+                                "—"
+
+                            )}
+
+                        </span>
+
+
+
+                        <!-- SEXO -->
+
+                        <span>
+
+                            ⚥
+
+                            ${esc(
+
+                                item.sexo ||
+
+                                "—"
+
+                            )}
+
+                        </span>
+
+
+
+                        <!-- IDADE -->
+
+                        <span>
+
+                            Idade:
+
+                            ${item.idade ?? "—"}
+
+                        </span>
+
+
+
+                        <!-- ID -->
+
+                        <span>
+
+                            ID:
+
+                            ${esc(
+
+                                item.id ||
+
+                                "—"
+
+                            )}
+
+                        </span>
+
+                    </div>
+
+
+
+                    <!-- BOTÕES -->
+
+                    <div
+
+                        class="result-actions"
+
+                        style="
+
+                            display:flex;
+
+                            gap:10px;
+
+                            margin-top:15px;
+
+                        ">
+
+
+
+                        <button
+
+                            class="secondary"
+
+                            onclick="editarPorId('${esc(item.id || "")}')">
+
+                            ✏️ Editar
+
+                        </button>
+
+
+
+                        <button
+
+                            class="secondary"
+
+                            onclick="excluir('${esc(item.id || "")}')"
+
+                            style="color:#d32f2f;">
+
+                            🗑️ Excluir
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `).join("") +
+
+
+
+            "</div>";
+
+
+
+    } catch (error) {
+
+        console.error(
+            "Erro na pesquisa:",
+            error
+        );
+
+
+
+        $("results").innerHTML =
+
+            '<div class="error-box">' +
+
+            'Erro ao realizar a busca: ' +
+
+            esc(error.message) +
+
+            '</div>';
+
+    }
+
+}
+
+
+
+/* ==========================================================
+   EDITAR POR ID
+   ========================================================== */
+
+function editarPorId(id) {
+
+    const item = registrosPesquisa.find(
+        registro => String(registro.id) === String(id)
+    );
+
+
+
+    if (!item) {
+
+        alert(
+            "Não foi possível localizar os dados desta ocorrência."
+        );
+
+        return;
+
+    }
+
+
+
+    editar(item);
+
+}
+
+
+
+/* ==========================================================
+   EDITAR OCORRÊNCIA
+   ========================================================== */
+
+function editar(item) {
+
+    console.log(
+        "EDITANDO OCORRÊNCIA:",
+        item
+    );
+
+
+
+    editingId = item.id;
+
+
+
+    /* Preencher formulário */
+
+    $("data").value =
+
+        formatDateForInput(
+            item.data
+        );
+
+
+
+    $("hora_minuto").value =
+
+        item.hora_minuto || "";
+
+
+
+    $("municipio").value =
+
+        item.municipio || "";
+
+
+
+    $("bairro").value =
+
+        item.bairro || "";
+
+
+
+    $("endereco").value =
+
+        item.endereco || "";
+
+
+
+    $("origem_chamado").value =
+
+        item.origem_chamado || "";
+
+
+
+    $("tipo").value =
+
+        item.tipo || "";
+
+
+
+    $("subtipo").value =
+
+        item.subtipo || "";
+
+
+
+    $("sexo").value =
+
+        item.sexo || "";
+
+
+
+    $("idade").value =
+
+        item.idade ?? "";
+
+
+
+    /* Alterar textos */
+
+    $("form-eyebrow").textContent =
+        "EDIÇÃO";
+
+
+
+    $("form-title").textContent =
+        "Editar ocorrência";
+
+
+
+    $("form-description").textContent =
+        "Altere os dados da ocorrência selecionada.";
+
+
+
+    $("form-panel-title").textContent =
+        "Editar dados da ocorrência";
+
+
+
+    $("btn-cadastrar").textContent =
+        "💾 Salvar alterações";
+
+
+
+    $("btn-cancelar-edicao").style.display =
+        "inline-block";
+
+
+
+    /* Abrir tela */
+
+    show("create");
+
+
+
+    /* Mostrar mensagem */
+
+    $("msg").innerHTML =
+
+        '<div class="loading">' +
+
+        'Editando ocorrência ID: ' +
+
+        esc(item.id) +
+
+        '</div>';
+
+}
+
+
+
+/* ==========================================================
+   SALVAR / CADASTRAR
+   ========================================================== */
+
+async function create() {
+
+    const dados = {
+
+        data:
+            $("data").value,
+
+
+
+        hora_minuto:
+            $("hora_minuto").value,
+
+
+
+        municipio:
+            $("municipio").value
+                .trim()
+                .toUpperCase(),
+
+
+
+        bairro:
+            $("bairro").value
+                .trim()
+                .toUpperCase(),
+
+
+
+        endereco:
+            $("endereco").value
+                .trim()
+                .toUpperCase(),
+
+
+
+        origem_chamado:
+            $("origem_chamado").value
+                .trim()
+                .toUpperCase(),
+
+
+
+        tipo:
+            $("tipo").value
+                .trim()
+                .toUpperCase(),
+
+
+
+        subtipo:
+            $("subtipo").value
+                .trim()
+                .toUpperCase(),
+
+
+
+        sexo:
+            $("sexo").value
+                .trim()
+                .toUpperCase(),
+
+
+
+        idade:
+            Number(
+                $("idade").value
+            )
+
+    };
+
+
+
+    if (dados.data) {
+
+        dados.data =
+            dados.data +
+            "T00:00:00";
+
+    }
+
+
+
+    console.log(
+        "DADOS:",
+        dados
+    );
+
+
+
+    $("msg").innerHTML =
+
+        '<div class="loading">' +
+
+        (
+
+            editingId
+
+                ? "Salvando alterações…"
+
+                : "Salvando ocorrência…"
+
+        ) +
+
+        '</div>';
+
+
+
+    try {
+
+        let resposta;
+
+
+
+        /* ==================================================
+           ATUALIZAR
+           ================================================== */
+
+        if (editingId) {
+
+            resposta =
+                await api(
+
+                    "/ocorrencias/" +
+
+                    encodeURIComponent(
+                        editingId
+                    ),
+
+                    {
+
+                        method: "PUT",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify(
+                                dados
+                            )
+
+                    }
+
+                );
+
+
+
+            $("msg").innerHTML =
+
+                '<div class="success-box">' +
+
+                '✓ Ocorrência atualizada com sucesso! ' +
+
+                '<b>ID:</b> ' +
+
+                esc(editingId) +
+
+                '</div>';
+
+
+
+            console.log(
+                "ATUALIZAÇÃO:",
+                resposta
+            );
+
+
+
+            editingId = null;
+
+
+
+            $("btn-cadastrar").textContent =
+                "＋ Cadastrar ocorrência";
+
+
+
+            $("btn-cancelar-edicao").style.display =
+                "none";
+
+
+
+            $("form-eyebrow").textContent =
+                "REGISTRO";
+
+
+
+            $("form-title").textContent =
+                "Nova ocorrência";
+
+
+
+            $("form-description").textContent =
+                "Cadastre uma nova ocorrência na base do SAMU.";
+
+
+
+            $("form-panel-title").textContent =
+                "Dados da ocorrência";
+
+
+
+            clearForm();
+
+
+
+            await load();
+
+
+
+            /* Se estava na pesquisa, atualiza os resultados */
+
+            await search();
+
+
+
+        }
+
+
+
+        /* ==================================================
+           CADASTRAR
+           ================================================== */
+
+        else {
+
+            resposta =
+                await api(
+
+                    "/ocorrencias",
+
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json"
+
+                        },
+
+                        body:
+                            JSON.stringify(
+                                dados
+                            )
+
+                    }
+
+                );
+
+
+
+            console.log(
+                "CADASTRO:",
+                resposta
+            );
+
+
+
+            $("msg").innerHTML =
+
+                '<div class="success-box">' +
+
+                '✓ Ocorrência cadastrada com sucesso! ' +
+
+                '<b>ID:</b> ' +
+
+                esc(
+
+                    resposta.id ||
+
+                    ""
+
+                ) +
+
+                '</div>';
+
+
+
+            clearForm();
+
+
+
+            /* Atualizar dashboard */
+
+            await load();
+
+        }
+
+
+
+    } catch (error) {
+
+        console.error(
+            "ERRO:",
+            error
+        );
+
+
+
+        $("msg").innerHTML =
+
+            '<div class="error-box">' +
+
+            'Não foi possível salvar a ocorrência. ' +
+
+            esc(error.message) +
+
+            '</div>';
+
+    }
+
+}
+
+
+
+/* ==========================================================
+   EXCLUIR OCORRÊNCIA
+   ========================================================== */
+
+async function excluir(id) {
+
+    if (!id) {
+
+        alert(
+            "ID da ocorrência não encontrado."
+        );
+
+        return;
+
+    }
+
+
+
+    const confirmar =
+
+        confirm(
+
+            "Tem certeza que deseja excluir esta ocorrência?\n\n" +
+
+            "ID: " +
+
+            id +
+
+            "\n\n" +
+
+            "Essa ação não pode ser desfeita."
+
+        );
+
+
+
+    if (!confirmar) {
+
+        return;
+
+    }
+
+
+
+    try {
+
+        console.log(
+            "EXCLUINDO:",
+            id
+        );
+
+
+
+        const resultado =
+
+            await api(
+
+                "/ocorrencias/" +
+
+                encodeURIComponent(id),
+
+                {
+
+                    method: "DELETE"
+
+                }
+
+            );
+
+
+
+        console.log(
+            "RESPOSTA DA EXCLUSÃO:",
+            resultado
+        );
+
+
+
+        alert(
+            "Ocorrência excluída com sucesso!"
+        );
+
+
+
+        /* Atualizar resultados */
+
+        await search();
+
+
+
+        /* Atualizar dashboard */
+
+        await load();
+
+
+
+    } catch (error) {
+
+        console.error(
+            "ERRO AO EXCLUIR:",
+            error
+        );
+
+
+
+        alert(
+
+            "Não foi possível excluir a ocorrência.\n\n" +
+
+            error.message
+
+        );
+
+    }
+
+}
+
+
+
+/* ==========================================================
+   CANCELAR EDIÇÃO
+   ========================================================== */
+
+function cancelEdit() {
+
+    editingId = null;
+
+
+
+    clearForm();
+
+
+
+    $("btn-cadastrar").textContent =
+        "＋ Cadastrar ocorrência";
+
+
+
+    $("btn-cancelar-edicao").style.display =
+        "none";
+
+
+
+    $("form-eyebrow").textContent =
+        "REGISTRO";
+
+
+
+    $("form-title").textContent =
+        "Nova ocorrência";
+
+
+
+    $("form-description").textContent =
+        "Cadastre uma nova ocorrência na base do SAMU.";
+
+
+
+    $("form-panel-title").textContent =
+        "Dados da ocorrência";
+
+
+
+    $("msg").innerHTML = "";
+
+
+
+    show("create");
+
+}
+
+
+
+/* ==========================================================
+   LIMPAR FORMULÁRIO
+   ========================================================== */
+
+function clearForm() {
+
+    $("data").value = "";
+
+    $("hora_minuto").value = "";
+
+    $("municipio").value = "";
+
+    $("bairro").value = "";
+
+    $("endereco").value = "";
+
+    $("origem_chamado").value = "";
+
+    $("tipo").value = "";
+
+    $("subtipo").value = "";
+
+    $("sexo").value = "";
+
+    $("idade").value = "";
+
+}
+
+
+
+/* ==========================================================
+   CONVERTER DATA DO ELASTICSEARCH
+   ========================================================== */
+
+function formatDateForInput(data) {
+
+    if (!data) {
+
+        return "";
+
+    }
+
+
+
+    return String(data)
+        .substring(0, 10);
+
+}
+
+
+
+/* ==========================================================
+   LIMPAR PESQUISA
+   ========================================================== */
+
+function clearSearch() {
+
+    [
+
+        "fm",
+
+        "ft",
+
+        "fs",
+
+        "fmin",
+
+        "fmax",
+
+        "fd1",
+
+        "fd2"
+
+    ].forEach(id => {
+
+        $(id).value = "";
+
+    });
+
+
+
+    registrosPesquisa = [];
+
+
+
+    $("result-caption").textContent =
+
+        "Faça uma pesquisa para visualizar os registros.";
+
+
+
+    $("results").innerHTML =
+
+        '<div class="results-empty">' +
+
+        'Nenhuma consulta realizada.' +
+
+        '</div>';
+
+}
+
+
+
+/* ==========================================================
+   ESCAPAR HTML
+   ========================================================== */
+
+function esc(value) {
+
+    return String(value)
+
+        .replace(
+
+            /[&<>'"]/g,
+
+            character => ({
+
+                "&": "&amp;",
+
+                "<": "&lt;",
+
+                ">": "&gt;",
+
+                "'": "&#39;",
+
+                '"': "&quot;"
+
+            })[character]
+
+        );
+
+}
+
+
+
+/* ==========================================================
+   INICIAR DASHBOARD
+   ========================================================== */
+
+load();
+
+</script>
+
+</body>
+
+</html>
